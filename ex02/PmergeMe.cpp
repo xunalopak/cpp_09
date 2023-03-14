@@ -65,6 +65,19 @@ bool PmergeMe::isNumber(const char *tab) {
 	return true;
 }
 
+void PmergeMe::ft_sort() {
+	double VectorTime, ListTime;
+
+	std::cout << "Before: ";
+	printVector();
+	ListTime = ListSort();
+	VectorTime = VectorSort();
+	std::cout << "After: ";
+	printVector();
+	std::cout << "Time to process a range of " << vector_.size() <<" elements with std::vector : " << VectorTime << " us" << std::endl;
+	std::cout << "Time to process a range of " << vector_.size() <<" elements with std::list : " << ListTime << " us" << std::endl;
+}
+
 double PmergeMe::VectorSort() {
 	std::clock_t start, end;
 	int	n, temp;
@@ -113,7 +126,6 @@ double PmergeMe::ListSort() {
 }
 
 void PmergeMe::ft_exec(char **tab) {
-	double VectorTime, ListTime;
 	int i = 1;
 	int nb = 0;
 
@@ -125,13 +137,6 @@ void PmergeMe::ft_exec(char **tab) {
 		list_.push_back(nb);
 		i++;
 	}
-	std::cout << "Before: ";
-	printVector();
-	ListTime = ListSort();
-	VectorTime = VectorSort();
-	std::cout << "After: ";
-	printVector();
-	std::cout << "Time to process a range of " << vector_.size() <<" elements with std::vector : " << VectorTime << " us" << std::endl;
-	std::cout << "Time to process a range of " << vector_.size() <<" elements with std::list : " << ListTime << " us" << std::endl;
+	ft_sort();
 }
 
