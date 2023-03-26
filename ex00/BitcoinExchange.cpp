@@ -104,7 +104,7 @@ void BitcoinExchange::pricing(std::string const &key, std::string const &value) 
 }
 
 void BitcoinExchange::parseFile(std::string filename) {
-	std::ifstream 	file(filename);
+	std::ifstream 	file(filename.c_str());
 	std::string 	line, key, date, value;
 	size_t 			operatorPos;
 
