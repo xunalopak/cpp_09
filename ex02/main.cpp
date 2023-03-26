@@ -54,11 +54,14 @@ int main(int ac, char **av){
 		int n = vec.size();
 		std::cout << "Before: ";
 		printVector(vec);
-		mergeInsertionSort(vec, lst, n);
+		clock_t start = clock();
+		double elapsed_secs_lst = mergeInsertionSort(vec, lst, n);
+		clock_t end = clock();
+		double elapsed_secs_vec = double(end - start) / CLOCKS_PER_SEC * 1000;
 		std::cout << "After: ";
-		printVector(vec);
-		std::cout << "Time to process a range of " << n << " elements with std::vector " << std::endl;
-		std::cout << "Time to process a range of " << n << " elements with std::list " << std::endl;
+		printList(lst);
+		std::cout << "Time to process a range of " << n << " elements with std::vector : " << elapsed_secs_vec << " us" << std::endl;
+		std::cout << "Time to process a range of " << n << " elements with std::list : " << elapsed_secs_lst << " us" << std::endl;
 
 	}
 	catch (std::exception &e){

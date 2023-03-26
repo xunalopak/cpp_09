@@ -4,6 +4,63 @@
 
 #include "PmergeMe.hpp"
 
+void insertionSortList(std::list<int>::iterator left, std::list<int>::iterator right) {
+	for (std::list<int>::iterator i = left; i != right; ++i) {
+		int key = *i;
+		std::list<int>::iterator j = i;
+		while (j != left && *std::prev(j) > key) {
+			*j = *std::prev(j);
+			--j;
+		}
+		*j = key;
+	}
+}
+
+void mergeList(std::list<int>::iterator left, std::list<int>::iterator mid, std::list<int>::iterator right) {
+	std::list<int> leftLst(left, mid);
+	std::list<int> rightLst(mid, right);
+
+	std::list<int>::iterator i = leftLst.begin();
+	std::list<int>::iterator j = rightLst.begin();
+	std::list<int>::iterator k = left;
+
+	while (i != leftLst.end() && j != rightLst.end()) {
+		if (*i <= *j) {
+			*k = *i;
+			++i;
+		} else {
+			*k = *j;
+			++j;
+		}
+		++k;
+	}
+
+	while (i != leftLst.end()) {
+		*k = *i;
+		++i;
+		++k;
+	}
+
+	while (j != rightLst.end()) {
+		*k = *j;
+		++j;
+		++k;
+	}
+}
+
+void mergeInsertionSortList(std::list<int>& lst, std::list<int>::iterator left, std::list<int>::iterator right, int threshold) {
+	if (std::distance(left, right) > 1) {
+		if (std::distance(left, right) < threshold) {
+			insertionSortList(left, right);
+		} else {
+			std::list<int>::iterator mid = std::next(left, std::distance(left, right) / 2);
+			mergeInsertionSortList(lst, left, mid, threshold);
+			mergeInsertionSortList(lst, mid, right, threshold);
+			mergeList(left, mid, right);
+		}
+	}
+}
+
 void insertionSort(std::vector<int>::iterator left, std::vector<int>::iterator right) {
 	for (std::vector<int>::iterator i = left + 1; i != right; i++) {
 		int key = *i;
@@ -73,16 +130,19 @@ void mergeSort(std::vector<int>& arr, std::vector<int>::iterator left_it, std::v
 	}
 }
 
-void mergeInsertionSort(std::vector<int>& arr, std::list<int>& lst, int n) {
-	if (n == 0) {
+double mergeInsertionSort(std::vector<int>& arr, std::list<int>& lst, int n) {
+	if (arr.empty()) {
 		throw std::invalid_argument("Error: The array cannot be empty.");
 	}
 	int k = 7; // seuil pour le tri par insertion
-	mergeSort(arr, arr.begin(), arr.end(), k);
 	for (int i = 0; i < n; i++) {
 		lst.push_back(arr[i]);
 	}
-	lst.sort();
+	mergeSort(arr, arr.begin(), arr.end(), k);
+	clock_t start = clock();
+	mergeInsertionSortList(lst, lst.begin(), lst.end(), k);
+	clock_t end = clock();
+	return (double)(end - start) / CLOCKS_PER_SEC * 1000;
 }
 
 void fillVectorFromArgs(int ac, char **av, std::vector<int>& vec) {
