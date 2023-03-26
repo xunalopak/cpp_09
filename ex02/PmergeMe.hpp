@@ -6,33 +6,18 @@
 #define CPP09_PMERGEME_HPP
 
 #include <iostream>
-#include <sstream>
-#include <list>
 #include <vector>
+#include <list>
 #include <ctime>
-#include <iomanip>
 #include <string>
+#include <sstream>
+#include <stdexcept>
 
-class PmergeMe{
-private:
-	std::vector<int> vector_;
-	std::list<int> list_;
+void insertionSort(std::vector<int>::iterator left, std::vector<int>::iterator right);
+void merge(std::vector<int>::iterator left_it, std::vector<int>::iterator mid_it, std::vector<int>::iterator right_it);
+void mergeSort(std::vector<int>& arr, std::vector<int>::iterator left_it, std::vector<int>::iterator right_it, int k);
+void mergeInsertionSort(std::vector<int>& arr, std::list<int>& lst, int n);
 
-public:
-	PmergeMe();
-	~PmergeMe();
-	PmergeMe(PmergeMe const &src);
-	PmergeMe &operator=(PmergeMe const &rhs);
-
-	void printVector();
-	void printList();
-	static bool isNumber(const char *tab);
-	void ft_sort();
-	void ft_exec(char **tab);
-	double VectorSort();
-	double ListSort();
-
-};
-
+void fillVectorFromArgs(int ac, char **av, std::vector<int>& vec);
 
 #endif //CPP09_PMERGEME_HPP

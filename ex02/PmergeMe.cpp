@@ -4,139 +4,95 @@
 
 #include "PmergeMe.hpp"
 
-PmergeMe::PmergeMe() {}
-
-PmergeMe::~PmergeMe() {}
-
-PmergeMe::PmergeMe(PmergeMe const &src) {
-	*this = src;
-}
-
-PmergeMe &PmergeMe::operator=(PmergeMe const &rhs) {
-	if (this != &rhs) {
-		this->list_ = rhs.list_;
-		this->vector_ = rhs.vector_;
-	}
-	return *this;
-}
-
-void PmergeMe::printVector(){
-	int i = 0;
-	for (std::vector<int>::iterator it = vector_.begin(); it < vector_.end(); it++)
-	{
-		if(++i > 5)
-		{
-			std::cout << " [...]";
-			break;
-		}
-		std::cout << " " << *it;
-	}
-	std::cout << std::endl;
-}
-
-void PmergeMe::printList(){
-	int i = 0;
-	for (std::list<int>::iterator it = list_.begin(); it != list_.end(); it++)
-	{
-		if(++i > 5)
-		{
-			std::cout << " [...]";
-			break;
-		}
-		std::cout << " " << *it;
-	}
-	std::cout << std::endl;
-}
-
-bool PmergeMe::isNumber(const char *tab) {
-	std::string str = tab;
-	if (str[0] == '-'){
-		std::cout << "Error: not a positive number." << std::endl;
-		return false;
-	}
-	if (str.length() > 10 || (str.length() == 10 && str > "2147483647")){
-		std::cout << "Error: too large a number." << std::endl;
-		return false;
-	}
-	if (!str.empty() && str.find_first_not_of("0123456789") != std::string::npos){
-		std::cout << "Error: not a number." << std::endl;
-		return false;
-	}
-	return true;
-}
-
-void PmergeMe::ft_sort() {
-	double VectorTime, ListTime;
-
-	std::cout << "Before: ";
-	printVector();
-	ListTime = ListSort();
-	VectorTime = VectorSort();
-	std::cout << "After: ";
-	printVector();
-	std::cout << "Time to process a range of " << vector_.size() <<" elements with std::vector : " << VectorTime << " us" << std::endl;
-	std::cout << "Time to process a range of " << vector_.size() <<" elements with std::list : " << ListTime << " us" << std::endl;
-}
-
-double PmergeMe::VectorSort() {
-	std::clock_t start, end;
-	int	n, temp;
-	double result;
-
-	start = clock();
-	n = vector_.size();
-	for (int i = 0; i < n - 1; i++)
-	{
-		for (int j = 0; j < n - i - 1; j++)
-		{
-			if (vector_[j] > vector_[j + 1])
-			{
-				temp = vector_[j];
-				vector_[j] = vector_[j + 1];
-				vector_[j + 1] = temp;
-			}
-		}
-	}
-	end = clock();
-	result = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000;
-	return result;
-}
-
-double PmergeMe::ListSort() {
-	std::clock_t start, end;
-	double result;
-	int temp;
-
-	start = clock();
-	for (std::list<int>::iterator i = ++list_.begin(); i != list_.end(); ++i)
-	{
-		temp = *i;
-		std::list<int>::iterator j = i;
-		while (j != list_.begin() && *(--j) > temp)
-		{
-			*(++j) = *j;
+void insertionSort(std::vector<int>::iterator left, std::vector<int>::iterator right) {
+	for (std::vector<int>::iterator i = left + 1; i != right; i++) {
+		int key = *i;
+		std::vector<int>::iterator j = i - 1;
+		while (j >= left && *j > key) {
+			*(j + 1) = *j;
 			j--;
 		}
-		*(++j) = temp;
-		j--;
+		*(j + 1) = key;
 	}
-	end = clock();
-	result = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000;
-	return result;
 }
 
-void PmergeMe::ft_exec(char **tab) {
-	int i = 1;
-	int nb = 0;
+void merge(std::vector<int>::iterator left_it, std::vector<int>::iterator mid_it, std::vector<int>::iterator right_it) {
+	int n1 = mid_it - left_it + 1;
+	int n2 = right_it - mid_it;
 
-	while (tab[i]) {
-		if (!isNumber(tab[i]))
-			return;
-		std::istringstream(tab[i]) >> nb;
-		vector_.push_back(nb);
-		list_.push_back(nb);
+	std::vector<int> L(n1);
+	std::vector<int> R(n2);
+
+	for (int i = 0; i < n1; i++) {
+		L[i] = *(left_it + i);
+	}
+	for (int j = 0; j < n2; j++) {
+		R[j] = *(mid_it + 1 + j);
+	}
+
+	int i = 0;
+	int j = 0;
+	std::vector<int>::iterator k = left_it;
+
+	while (i < n1 && j < n2) {
+		if (L[i] <= R[j]) {
+			*k = L[i];
+			i++;
+		}
+		else {
+			*k = R[j];
+			j++;
+		}
+		k++;
+	}
+
+	while (i < n1) {
+		*k = L[i];
 		i++;
+		k++;
 	}
-	ft_sort();
+
+	while (j < n2) {
+		*k = R[j];
+		j++;
+		k++;
+	}
 }
 
+void mergeSort(std::vector<int>& arr, std::vector<int>::iterator left_it, std::vector<int>::iterator right_it, int k) {
+	if (left_it < right_it) {
+		if (right_it - left_it <= k) {
+			insertionSort(left_it, right_it);
+		}
+		else {
+			std::vector<int>::iterator mid_it = left_it + (right_it - left_it) / 2;
+			mergeSort(arr, left_it, mid_it, k);
+			mergeSort(arr, mid_it + 1, right_it, k);
+			merge(left_it, mid_it, right_it);
+		}
+	}
+}
+
+void mergeInsertionSort(std::vector<int>& arr, std::list<int>& lst, int n) {
+	if (n == 0) {
+		throw std::invalid_argument("Error: The array cannot be empty.");
+	}
+	int k = 7; // seuil pour le tri par insertion
+	mergeSort(arr, arr.begin(), arr.end(), k);
+	for (int i = 0; i < n; i++) {
+		lst.push_back(arr[i]);
+	}
+	lst.sort();
+}
+
+void fillVectorFromArgs(int ac, char **av, std::vector<int>& vec) {
+	for (int i = 1; i < ac; i++) {
+		std::istringstream ss(av[i]);
+		int num;
+		if (ss >> num) {
+			vec.push_back(num);
+		} else {
+			throw std::invalid_argument("Invalid argument: " + std::string(av[i]));
+		}
+	}
+}

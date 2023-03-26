@@ -4,13 +4,66 @@
 
 #include "PmergeMe.hpp"
 
-int main(int ac, char **av) {
-
-	PmergeMe pmergeMe;
-	if (ac == 1){
-		std::cout << "Error: no arguments." << std::endl;
-		return 0;
+void printVector(std::vector<int> &vec){
+	int i = 0;
+	if (vec.size() > 8){
+		for (std::vector<int>::iterator it = vec.begin(); it != vec.end(); it++){
+			i++;
+			if (i == 8){
+				std::cout << "... ";
+				break;
+			}
+			std::cout << *it << " ";
+		}
 	}
-	pmergeMe.ft_exec(av);
+	else{
+		for (std::vector<int>::iterator it = vec.begin(); it != vec.end(); it++)
+			std::cout << *it << " ";
+	}
+
+	std::cout << std::endl;
+}
+
+void printList(std::list<int> &lst){
+	if (lst.size() > 8){
+		int i = 0;
+		for (std::list<int>::iterator it = lst.begin(); it != lst.end(); it++){
+			i++;
+			if (i == 8){
+				std::cout << "... ";
+				break;
+			}
+			std::cout << *it << " ";
+		}
+	}
+	else{
+		for (std::list<int>::iterator it = lst.begin(); it != lst.end(); it++)
+			std::cout << *it << " ";
+	}
+	std::cout << std::endl;
+}
+
+int main(int ac, char **av){
+	if (ac < 3)
+		throw std::invalid_argument("Error: Invalid number of arguments.");
+	std::vector<int> vec;
+	std::list<int> lst;
+
+	try{
+		fillVectorFromArgs(ac, av, vec);
+		int n = vec.size();
+		std::cout << "Before: ";
+		printVector(vec);
+		mergeInsertionSort(vec, lst, n);
+		std::cout << "After: ";
+		printVector(vec);
+		std::cout << "Time to process a range of " << n << " elements with std::vector " << std::endl;
+		std::cout << "Time to process a range of " << n << " elements with std::list " << std::endl;
+
+	}
+	catch (std::exception &e){
+		std::cerr << e.what() << std::endl;
+	}
+
 	return 0;
 }
