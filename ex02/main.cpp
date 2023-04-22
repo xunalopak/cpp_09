@@ -20,7 +20,6 @@ void printVector(std::vector<int> &vec){
 		for (std::vector<int>::iterator it = vec.begin(); it != vec.end(); it++)
 			std::cout << *it << " ";
 	}
-
 	std::cout << std::endl;
 }
 
@@ -50,19 +49,22 @@ int main(int ac, char **av){
 	std::list<int> lst;
 
 	try{
-		fillVectorFromArgs(ac, av, vec);
+		fillVectorFromArgs(ac, av, vec, lst);
 		int n = vec.size();
 		std::cout << "Before: ";
 		printVector(vec);
 		clock_t start = clock();
-		double elapsed_secs_lst = mergeInsertionSort(vec, lst, n);
+		merge_insertion_sort(vec, 0, n - 1);
 		clock_t end = clock();
+		clock_t start1 = clock();
+		merge_insertion_sort_list(lst, lst.begin(), lst.end(), 7);
+		clock_t end1 = clock();
 		double elapsed_secs_vec = double(end - start) / CLOCKS_PER_SEC * 1000;
+		double elapsed_secs_lst = double(end1 - start1) / CLOCKS_PER_SEC * 1000;
 		std::cout << "After: ";
 		printList(lst);
-		std::cout << "Time to process a range of " << n << " elements with std::vector : " << elapsed_secs_vec << " us" << std::endl;
-		std::cout << "Time to process a range of " << n << " elements with std::list : " << elapsed_secs_lst << " us" << std::endl;
-
+		std::cout << "Time to process a range of " << n << " elements with std::vector : " << elapsed_secs_vec << " ms" << std::endl;
+		std::cout << "Time to process a range of " << n << " elements with std::list : " << elapsed_secs_lst << " ms" << std::endl;
 	}
 	catch (std::exception &e){
 		std::cerr << e.what() << std::endl;

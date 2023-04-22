@@ -4,131 +4,181 @@
 
 #include "BitcoinExchange.hpp"
 
-BitcoinExchange::BitcoinExchange(std::string filename) {
-	getFile();
-	parseFile(filename);
+std::map<std::string, float> parseFile(std::map<std::string, float> _datamap) {
+	std::ifstream   infile;
+	std::string     database;
+
+	infile.open("./data.csv");
+	while (!infile.eof())
+	{
+		infile >> database;
+		std::string date = database.substr(0,10).erase(4,1).erase(6,1);
+		float      rate = 0.0;
+		std::stringstream convert;
+		convert << database.substr(11);
+		convert >> rate;
+		_datamap.insert(std::make_pair(date,rate));
+	}
+	infile.close();
+	return (_datamap);
 }
 
-BitcoinExchange::BitcoinExchange(const BitcoinExchange &copy) {
-	*this = copy;
-}
+int parsing(int year, int month, int day, std::string value, int valuebtc, std::string line) {
+	size_t idx = line.find("|");
+	if (line[idx + 1] != ' ' || line[idx - 1] != ' ')
+	{
+		std::cerr << "Error: Invalid pipe\n";
+		return (-1);
+	}
 
-BitcoinExchange::~BitcoinExchange() {}
+	if (line.substr(4,1) != "-" && line.substr(7,1) != "-")
+	{
+		std::cerr << "Error: Invalid date format\n";
+		return (-1);
+	}
 
-BitcoinExchange &BitcoinExchange::operator=(const BitcoinExchange &copy) {
-	if (this != &copy)
-		this->_data = copy._data;
-	return *this;
-}
-
-void BitcoinExchange::getFile(){
-	std::ifstream 	file("data.csv");
-	std::string 	line;
-	float 			nb;
-	int 			operatorPos;
-
-	if (!file.is_open())
-		throw FileException();
-	while (getline(file, line)){
-		if (line != "date,exchange_rate")
+	int count = 0;
+	for (size_t i = 0; i < value.length(); i++)
+	{
+		if (value[0] == '.')
 		{
-			operatorPos = line.find(',');
-			if (operatorPos == -1)
-				throw BadInputException();
-			std::istringstream(line.substr(operatorPos + 1, line.length())) >> nb;
-			this->_data[line.substr(0, operatorPos)] = nb;
+			std::cerr << "Error: Invalid value format\n";
+			return (-1);
+		}
+		if (value[i] == '.')
+			count++;
+		if (!(isdigit(value[i])) && value[i] != '.' && (count == 1 || count == 0))
+		{
+			std::cerr << "Error: Invalid value format\n";
+			return (-1);
 		}
 	}
-}
 
-bool   BitcoinExchange::parseKey(std::string &key) const
-{
-	char buffer [80];
-	const char *str = key.c_str();
-	struct tm tm;
-	char *end = strptime(str, "%Y-%m-%d", &tm);
-	if (end == NULL || *end != '\0' || !strftime(buffer,80,"%Y-%m-%d",&tm))
+	int month_limits[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+	if (year < 2009 || month < 1 || month > 12)
 	{
-		std::cerr << "Error: bad input => " << key << "\n";
-		return false;
+		std::cerr << "Error: Invalid date format\n";
+		return (-1);
 	}
-	return true;
-}
-
-bool  BitcoinExchange::parseValue(std::string const &value) const
-{
-	std::stringstream ss(value);
-	if (value.find_first_not_of("0123456789.") != std::string::npos)
+	if (day > month_limits[month - 1] || day < 1)
 	{
-		int num;
-		ss >> num;
-		if (num == 0)
-			return true;
-		if (num < 0){
-			std::cerr << "Error: not a positive number." << std::endl;
-			return false;
+		std::cerr << "Error: Out of month range\n";
+		return (-1);
+	}
+	if (valuebtc < 0.00 || valuebtc > 1000.00 )
+	{
+		std::cerr << "Error: Rate out of range\n";
+		return (-1);
+	}
+	return (0);
+}
+
+void printOutput(std::string inputdate, float bitcoins, std::map<std::string, float> _datamap)
+{
+	std::map<std::string, float>::iterator itb = _datamap.begin();
+	std::map<std::string, float>::iterator ite = _datamap.end();
+	bool    flag = false;
+
+	for (; itb != ite; itb++){
+		if (itb->first == inputdate)
+		{
+			flag = true;
+			break;
 		}
-		std::cerr << "Error: only digit accepted => " << value << std::endl;
-		return false;
 	}
-	int converted;
-	ss >> converted;
-	if (converted > MAX_LINE){
-		std::cerr << "Error: too large a number." << std::endl;
-		return false;
+	if (flag){
+		std::cout << inputdate.insert(4,"-").insert(7,"-") << " => " << bitcoins << " = " <<  std::fixed << std::setprecision(2) << bitcoins * itb->second << "\n";
+		flag = false;
 	}
-	return true;
+	else{
+		ite = _datamap.lower_bound(inputdate);
+		std::cout << inputdate.insert(4,"-").insert(7,"-") << " => " << bitcoins << " = " << std::fixed << std::setprecision(2) << bitcoins * ite->second << "\n";
+	}
 }
 
-float BitcoinExchange::findValue(std::string const &key){
-	std::map<std::string, float>::iterator it;
-	it = this->_data.find(key);
-	if (it != this->_data.end())
-		return it->second;
+void bitcoinExchange(std::string file, std::map<std::string, float> _datamap) {
+	std::ifstream   infile;
+	std::string     line;
 
-	it = this->_data.lower_bound(key);
-	if (it == this->_data.end()){
-		it--;
-		return it->second;
+	if (infile.is_open()){
+		std::cerr << "Error: Could not open file\n";
+		exit(0);
 	}
-	return -1;
-}
 
-void BitcoinExchange::pricing(std::string const &key, std::string const &value) {
-	std::stringstream ss(value);
-	float result;
-	ss >> result;
-	if (result == -0)
-		result = 0;
-	std::cout << key << " => " << result << " = " << findValue(key) << std::endl;
-}
+	infile.open(file);
 
-void BitcoinExchange::parseFile(std::string filename) {
-	std::ifstream 	file(filename.c_str());
-	std::string 	line, key, date, value;
-	size_t 			operatorPos;
+	if (infile.fail()){
+		std::cerr << "Error: Could not open file\n";
+		infile.close();
+		exit(0);
+	}
 
-	std::getline(file, line);
-	while (!file.eof()){
-		std::getline(file, line);
-		operatorPos = line.find(" | ");
-		if (operatorPos != std::string::npos){
-			key = line.substr(0, operatorPos);
-			if (parseKey(key)){
-				value = line.substr(operatorPos + 3, line.find('\n'));
-				if (parseValue(value))
-					pricing(key, value);
-			}
+	while (!infile.eof()){
+		std::string date;
+		std::getline(infile, line);
+
+		int year, month, day = 0;
+		std::stringstream y, m, d;
+		y << line.substr(0,4);
+		m << line.substr(5,2);
+		d << line.substr(8,2);
+		y >> year;
+		m >> month;
+		d >> day;
+
+		if (line.length() < 14){
+			std::cerr << "Error: Invalid format\n";
+			continue ;
 		}
+
+		std::string value = line.substr(13, line.find('\0'));
+
+		float   bitcoins = 0.00;
+		std::stringstream bit;
+		bit << value;
+		bit >> bitcoins;
+
+		if (month < 10 && day < 10)
+			date = std::to_string(year * 10) + std::to_string(month * 10) + std::to_string(day);
+		else if (day < 10)
+			date = std::to_string(year) + std::to_string(month * 10) + std::to_string(day);
+		else if (month < 10)
+			date = std::to_string(year * 10) + std::to_string(month) + std::to_string(day);
 		else
-			std::cerr << "Error: bad input => " << line << "\n";
+			date = std::to_string(year) + std::to_string(month) + std::to_string(day);
+
+		if (parsing(year, month, day, value, bitcoins, line) == 0)
+			printOutput(date, bitcoins, _datamap);
 	}
 }
 
-const char *BitcoinExchange::FileException::what() const throw() {
-	return "File couldn't be opened (en gros ça marche pas)";
-}
 
-const char *BitcoinExchange::BadInputException::what() const throw() {
-	return "Bad input in file please check it (c'est pas mieux que le précédent)";
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

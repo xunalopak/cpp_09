@@ -48,109 +48,75 @@ void mergeList(std::list<int>::iterator left, std::list<int>::iterator mid, std:
 	}
 }
 
-void mergeInsertionSortList(std::list<int>& lst, std::list<int>::iterator left, std::list<int>::iterator right, int threshold) {
+void merge_insertion_sort_list(std::list<int>& lst, std::list<int>::iterator left, std::list<int>::iterator right, int threshold) {
 	if (std::distance(left, right) > 1) {
 		if (std::distance(left, right) < threshold) {
 			insertionSortList(left, right);
 		} else {
 			std::list<int>::iterator mid = std::next(left, std::distance(left, right) / 2);
-			mergeInsertionSortList(lst, left, mid, threshold);
-			mergeInsertionSortList(lst, mid, right, threshold);
+			merge_insertion_sort_list(lst, left, mid, threshold);
+			merge_insertion_sort_list(lst, mid, right, threshold);
 			mergeList(left, mid, right);
 		}
 	}
 }
 
-void insertionSort(std::vector<int>::iterator left, std::vector<int>::iterator right) {
-	for (std::vector<int>::iterator i = left + 1; i != right; i++) {
-		int key = *i;
-		std::vector<int>::iterator j = i - 1;
-		while (j >= left && *j > key) {
-			*(j + 1) = *j;
-			j--;
+void merge_insertion_sort(std::vector<int>& arr, int l, int r) {
+	if (l >= r) {
+		return;
+	}
+
+	// Si la taille du vecteur est inférieure à un seuil, on utilise l'algorithme d'insertion sort
+	if (r - l + 1 <= 10) {
+		for (int i = l + 1; i <= r; i++) {
+			int key = arr[i];
+			int j = i - 1;
+			while (j >= l && arr[j] > key) {
+				arr[j + 1] = arr[j];
+				j--;
+			}
+			arr[j + 1] = key;
 		}
-		*(j + 1) = key;
-	}
-}
+	} else {
+		int m = (l + r) / 2;
+		merge_insertion_sort(arr, l, m);
+		merge_insertion_sort(arr, m + 1, r);
 
-void merge(std::vector<int>::iterator left_it, std::vector<int>::iterator mid_it, std::vector<int>::iterator right_it) {
-	int n1 = mid_it - left_it + 1;
-	int n2 = right_it - mid_it;
-
-	std::vector<int> L(n1);
-	std::vector<int> R(n2);
-
-	for (int i = 0; i < n1; i++) {
-		L[i] = *(left_it + i);
-	}
-	for (int j = 0; j < n2; j++) {
-		R[j] = *(mid_it + 1 + j);
-	}
-
-	int i = 0;
-	int j = 0;
-	std::vector<int>::iterator k = left_it;
-
-	while (i < n1 && j < n2) {
-		if (L[i] <= R[j]) {
-			*k = L[i];
+		// Fusionner les deux sous-vecteurs triés
+		std::vector<int> merged;
+		int i = l, j = m + 1;
+		while (i <= m && j <= r) {
+			if (arr[i] <= arr[j]) {
+				merged.push_back(arr[i]);
+				i++;
+			} else {
+				merged.push_back(arr[j]);
+				j++;
+			}
+		}
+		while (i <= m) {
+			merged.push_back(arr[i]);
 			i++;
 		}
-		else {
-			*k = R[j];
+		while (j <= r) {
+			merged.push_back(arr[j]);
 			j++;
 		}
-		k++;
-	}
 
-	while (i < n1) {
-		*k = L[i];
-		i++;
-		k++;
-	}
-
-	while (j < n2) {
-		*k = R[j];
-		j++;
-		k++;
-	}
-}
-
-void mergeSort(std::vector<int>& arr, std::vector<int>::iterator left_it, std::vector<int>::iterator right_it, int k) {
-	if (left_it < right_it) {
-		if (right_it - left_it <= k) {
-			insertionSort(left_it, right_it);
-		}
-		else {
-			std::vector<int>::iterator mid_it = left_it + (right_it - left_it) / 2;
-			mergeSort(arr, left_it, mid_it, k);
-			mergeSort(arr, mid_it + 1, right_it, k);
-			merge(left_it, mid_it, right_it);
+		// Copier les éléments fusionnés dans le vecteur d'origine
+		for (int i = l; i <= r; i++) {
+			arr[i] = merged[i - l];
 		}
 	}
 }
 
-double mergeInsertionSort(std::vector<int>& arr, std::list<int>& lst, int n) {
-	if (arr.empty()) {
-		throw std::invalid_argument("Error: The array cannot be empty.");
-	}
-	int k = 7; // seuil pour le tri par insertion
-	for (int i = 0; i < n; i++) {
-		lst.push_back(arr[i]);
-	}
-	mergeSort(arr, arr.begin(), arr.end(), k);
-	clock_t start = clock();
-	mergeInsertionSortList(lst, lst.begin(), lst.end(), k);
-	clock_t end = clock();
-	return (double)(end - start) / CLOCKS_PER_SEC * 1000;
-}
-
-void fillVectorFromArgs(int ac, char **av, std::vector<int>& vec) {
+void fillVectorFromArgs(int ac, char **av, std::vector<int>& vec, std::list<int>& lst) {
 	for (int i = 1; i < ac; i++) {
 		std::istringstream ss(av[i]);
 		int num;
 		if (ss >> num) {
 			vec.push_back(num);
+			lst.push_back(num);
 		} else {
 			throw std::invalid_argument("Invalid argument: " + std::string(av[i]));
 		}

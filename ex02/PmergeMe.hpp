@@ -14,11 +14,10 @@
 #include <sstream>
 #include <stdexcept>
 
-void insertionSort(std::vector<int>::iterator left, std::vector<int>::iterator right);
-void merge(std::vector<int>::iterator left_it, std::vector<int>::iterator mid_it, std::vector<int>::iterator right_it);
-void mergeSort(std::vector<int>& arr, std::vector<int>::iterator left_it, std::vector<int>::iterator right_it, int k);
-double mergeInsertionSort(std::vector<int>& arr, std::list<int>& lst, int n);
+void merge_insertion_sort(std::vector<int>& arr, int l, int r);
 
-void fillVectorFromArgs(int ac, char **av, std::vector<int>& vec);
+void merge_insertion_sort_list(std::list<int>& lst, std::list<int>::iterator left, std::list<int>::iterator right, int threshold);
+
+void fillVectorFromArgs(int ac, char **av, std::vector<int>& vec, std::list<int>& lst);
 
 #endif //CPP09_PMERGEME_HPP
