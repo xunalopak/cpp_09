@@ -5,7 +5,7 @@ SRC = $(shell find . -type f -name "*.cpp" | cut -c 3-)
 CC = c++
 
 FLAG = -Werror -Wall -Wextra -O2
-CPPFLAGS = --std=c++98
+CPPFLAGS = --std=c++98 -Wno-deprecated-declarations
 
 INCLUDES = $(shell find . -type f -name "*.hpp" | cut -c 3-)
 

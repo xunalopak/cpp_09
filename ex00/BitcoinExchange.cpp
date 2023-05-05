@@ -79,29 +79,24 @@ void printOutput(std::string inputdate, float bitcoins, std::map<std::string, fl
 	std::map<std::string, float>::iterator ite = _datamap.end();
 	bool flag = false;
 
-	for (; itb != ite; itb++){
-		if (itb->first == inputdate)
-		{
+	for (; itb != ite; itb++) {
+		if (itb->first == inputdate) {
 			flag = true;
 			break;
 		}
 	}
-	if (flag){
-		std::cout << inputdate.insert(4,"-").insert(7,"-") << " => " << bitcoins << " = ";
-		std::cout << std::fixed << std::setprecision(2) << bitcoins * itb->second << "\n";
+	if (flag) {
+		char buffer[50];
+		sprintf(buffer, "%.2f", bitcoins * itb->second);
+		std::cout << inputdate.insert(4, "-").insert(7, "-") << " => " << bitcoins << " = " << buffer << "\n";
 		flag = false;
 	}
-	else{
+	else {
 		ite = _datamap.lower_bound(inputdate);
-		std::cout << inputdate.insert(4,"-").insert(7,"-") << " => " << bitcoins << " = ";
-		std::cout << std::fixed << std::setprecision(2) << bitcoins * ite->second << "\n";
+		char buffer[50];
+		sprintf(buffer, "%.2f", bitcoins * ite->second);
+		std::cout << inputdate.insert(4, "-").insert(7, "-") << " => " << bitcoins << " = " << buffer << "\n";
 	}
-}
-
-std::string intToString(int n) {
-	std::ostringstream oss;
-	oss << n;
-	return oss.str();
 }
 
 void bitcoinExchange(std::string file, std::map<std::string, float> _datamap) {
