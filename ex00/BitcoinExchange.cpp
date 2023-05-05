@@ -77,7 +77,7 @@ void printOutput(std::string inputdate, float bitcoins, std::map<std::string, fl
 {
 	std::map<std::string, float>::iterator itb = _datamap.begin();
 	std::map<std::string, float>::iterator ite = _datamap.end();
-	bool    flag = false;
+	bool flag = false;
 
 	for (; itb != ite; itb++){
 		if (itb->first == inputdate)
@@ -87,12 +87,14 @@ void printOutput(std::string inputdate, float bitcoins, std::map<std::string, fl
 		}
 	}
 	if (flag){
-		std::cout << inputdate.insert(4,"-").insert(7,"-") << " => " << bitcoins << " = " <<  std::fixed << std::setprecision(2) << bitcoins * itb->second << "\n";
+		std::cout << inputdate.insert(4,"-").insert(7,"-") << " => " << bitcoins << " = ";
+		std::cout << std::fixed << std::setprecision(2) << bitcoins * itb->second << "\n";
 		flag = false;
 	}
 	else{
 		ite = _datamap.lower_bound(inputdate);
-		std::cout << inputdate.insert(4,"-").insert(7,"-") << " => " << bitcoins << " = " << std::fixed << std::setprecision(2) << bitcoins * ite->second << "\n";
+		std::cout << inputdate.insert(4,"-").insert(7,"-") << " => " << bitcoins << " = ";
+		std::cout << std::fixed << std::setprecision(2) << bitcoins * ite->second << "\n";
 	}
 }
 
@@ -110,7 +112,7 @@ void bitcoinExchange(std::string file, std::map<std::string, float> _datamap) {
 
 	if (!infile.is_open()) {
 		std::cerr << "Error: Could not open file\n";
-		exit(0);
+		return ;
 	}
 
 	while (getline(infile, line)) {
@@ -154,6 +156,7 @@ void bitcoinExchange(std::string file, std::map<std::string, float> _datamap) {
 		if (parsing(year, month, day, value, bitcoins, line) == 0)
 			printOutput(date, bitcoins, _datamap);
 	}
+	infile.close();
 }
 
 
