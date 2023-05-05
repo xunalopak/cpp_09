@@ -96,56 +96,60 @@ void printOutput(std::string inputdate, float bitcoins, std::map<std::string, fl
 	}
 }
 
+std::string intToString(int n) {
+	std::ostringstream oss;
+	oss << n;
+	return oss.str();
+}
+
 void bitcoinExchange(std::string file, std::map<std::string, float> _datamap) {
-	std::ifstream   infile;
-	std::string     line;
+	std::ifstream infile;
+	std::string line;
 
-	if (infile.is_open()){
+	infile.open(file.c_str());
+
+	if (!infile.is_open()) {
 		std::cerr << "Error: Could not open file\n";
 		exit(0);
 	}
 
-	infile.open(file);
-
-	if (infile.fail()){
-		std::cerr << "Error: Could not open file\n";
-		infile.close();
-		exit(0);
-	}
-
-	while (!infile.eof()){
+	while (getline(infile, line)) {
 		std::string date;
-		std::getline(infile, line);
-
 		int year, month, day = 0;
 		std::stringstream y, m, d;
-		y << line.substr(0,4);
-		m << line.substr(5,2);
-		d << line.substr(8,2);
+
+		y << line.substr(0, 4);
 		y >> year;
+
+		m << line.substr(5, 2);
 		m >> month;
+
+		d << line.substr(8, 2);
 		d >> day;
 
-		if (line.length() < 14){
+		if (line.length() < 14) {
 			std::cerr << "Error: Invalid format\n";
-			continue ;
+			continue;
 		}
 
 		std::string value = line.substr(13, line.find('\0'));
 
-		float   bitcoins = 0.00;
+		float bitcoins = 0.00;
 		std::stringstream bit;
 		bit << value;
 		bit >> bitcoins;
 
+		std::ostringstream oss;
 		if (month < 10 && day < 10)
-			date = std::to_string(year * 10) + std::to_string(month * 10) + std::to_string(day);
+			oss << year * 10 << month * 10 << day;
 		else if (day < 10)
-			date = std::to_string(year) + std::to_string(month * 10) + std::to_string(day);
+			oss << year << month * 10 << day;
 		else if (month < 10)
-			date = std::to_string(year * 10) + std::to_string(month) + std::to_string(day);
+			oss << year * 10 << month << day;
 		else
-			date = std::to_string(year) + std::to_string(month) + std::to_string(day);
+			oss << year << month << day;
+
+		date = oss.str();
 
 		if (parsing(year, month, day, value, bitcoins, line) == 0)
 			printOutput(date, bitcoins, _datamap);
