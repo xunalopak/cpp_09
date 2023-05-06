@@ -16,7 +16,7 @@
 
 void merge_insertion_sort(std::vector<int>& arr, int l, int r);
 
-void merge_insertion_sort_list(std::list<int>& lst, std::list<int>::iterator left, std::list<int>::iterator right, int threshold);
+void merge_insertion_sort_list(std::list<int>& lst);
 
 void fillVectorFromArgs(int ac, char **av, std::vector<int>& vec, std::list<int>& lst);
 

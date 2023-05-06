@@ -24,8 +24,9 @@ std::map<std::string, float> parseFile(std::map<std::string, float> _datamap) {
 }
 
 int parsing(int year, int month, int day, std::string value, int valuebtc, std::string line) {
-	size_t idx = line.find("|");
-	if (line[idx + 1] != ' ' || line[idx - 1] != ' ')
+
+	size_t i = line.find("|");
+	if (line[i + 1] != ' ' || line[i- 1] != ' ')
 	{
 		std::cerr << "Error: Invalid pipe\n";
 		return (-1);
@@ -78,6 +79,7 @@ void printOutput(std::string inputdate, float bitcoins, std::map<std::string, fl
 	std::map<std::string, float>::iterator itb = _datamap.begin();
 	std::map<std::string, float>::iterator ite = _datamap.end();
 	bool flag = false;
+	std::string inputverif = "2023-01-01";
 
 	for (; itb != ite; itb++) {
 		if (itb->first == inputdate) {
@@ -93,6 +95,8 @@ void printOutput(std::string inputdate, float bitcoins, std::map<std::string, fl
 	}
 	else {
 		ite = _datamap.lower_bound(inputdate);
+		if (ite != _datamap.begin())
+			ite--;
 		char buffer[50];
 		sprintf(buffer, "%.2f", bitcoins * ite->second);
 		std::cout << inputdate.insert(4, "-").insert(7, "-") << " => " << bitcoins << " = " << buffer << "\n";
@@ -107,6 +111,12 @@ void bitcoinExchange(std::string file, std::map<std::string, float> _datamap) {
 
 	if (!infile.is_open()) {
 		std::cerr << "Error: Could not open file\n";
+		return ;
+	}
+
+	getline(infile, line);
+	if (line != "date | value"){
+		std::cerr << "Error: Invalid header\n";
 		return ;
 	}
 
@@ -153,34 +163,3 @@ void bitcoinExchange(std::string file, std::map<std::string, float> _datamap) {
 	}
 	infile.close();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

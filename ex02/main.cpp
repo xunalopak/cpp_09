@@ -57,7 +57,7 @@ int main(int ac, char **av){
 		merge_insertion_sort(vec, 0, n - 1);
 		clock_t end = clock();
 		clock_t start1 = clock();
-		merge_insertion_sort_list(lst, lst.begin(), lst.end(), 7);
+		merge_insertion_sort_list(lst);
 		clock_t end1 = clock();
 		double elapsed_secs_vec = double(end - start) / CLOCKS_PER_SEC * 1000;
 		double elapsed_secs_lst = double(end1 - start1) / CLOCKS_PER_SEC * 1000;

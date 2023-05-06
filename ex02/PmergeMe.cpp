@@ -4,60 +4,60 @@
 
 #include "PmergeMe.hpp"
 
-void insertionSortList(std::list<int>::iterator left, std::list<int>::iterator right) {
-	for (std::list<int>::iterator i = left; i != right; ++i) {
-		int key = *i;
-		std::list<int>::iterator j = i;
-		while (j != left && *std::prev(j) > key) {
-			*j = *std::prev(j);
+void insertionSortList(std::list<int>& l) {
+	for (std::list<int>::iterator it = ++l.begin(); it != l.end(); ++it) {
+		int key = *it;
+		std::list<int>::iterator j = it;
+		--j;
+		while (j != l.begin() && *j > key) {
+			*it = *j;
 			--j;
+			--it;
 		}
-		*j = key;
+		*it = key;
 	}
 }
 
-void mergeList(std::list<int>::iterator left, std::list<int>::iterator mid, std::list<int>::iterator right) {
-	std::list<int> leftLst(left, mid);
-	std::list<int> rightLst(mid, right);
-
-	std::list<int>::iterator i = leftLst.begin();
-	std::list<int>::iterator j = rightLst.begin();
-	std::list<int>::iterator k = left;
-
-	while (i != leftLst.end() && j != rightLst.end()) {
-		if (*i <= *j) {
-			*k = *i;
-			++i;
+void mergeSortList(std::list<int>& l) {
+	if (l.size() < 10) {
+		return;
+	}
+	std::list<int> left, right;
+	int mid = l.size() / 2;
+	for (std::list<int>::iterator i = l.begin(); i != l.end(); i++) {
+		if (distance(l.begin(), i) < mid) {
+			left.push_back(*i);
 		} else {
-			*k = *j;
-			++j;
+			right.push_back(*i);
 		}
-		++k;
 	}
-
-	while (i != leftLst.end()) {
-		*k = *i;
-		++i;
-		++k;
+	l.clear();
+	mergeSortList(left);
+	mergeSortList(right);
+	while (!left.empty() && !right.empty()) {
+		if (left.front() <= right.front()) {
+			l.push_back(left.front());
+			left.pop_front();
+		} else {
+			l.push_back(right.front());
+			right.pop_front();
+		}
 	}
-
-	while (j != rightLst.end()) {
-		*k = *j;
-		++j;
-		++k;
+	while (!left.empty()) {
+		l.push_back(left.front());
+		left.pop_front();
+	}
+	while (!right.empty()) {
+		l.push_back(right.front());
+		right.pop_front();
 	}
 }
 
-void merge_insertion_sort_list(std::list<int>& lst, std::list<int>::iterator left, std::list<int>::iterator right, int threshold) {
-	if (std::distance(left, right) > 1) {
-		if (std::distance(left, right) < threshold) {
-			insertionSortList(left, right);
-		} else {
-			std::list<int>::iterator mid = std::next(left, std::distance(left, right) / 2);
-			merge_insertion_sort_list(lst, left, mid, threshold);
-			merge_insertion_sort_list(lst, mid, right, threshold);
-			mergeList(left, mid, right);
-		}
+void merge_insertion_sort_list(std::list<int>& lst) {
+	if (lst.size() < 2)
+		insertionSortList(lst);
+	else {
+		mergeSortList(lst);
 	}
 }
 
@@ -66,7 +66,7 @@ void merge_insertion_sort(std::vector<int>& arr, int l, int r) {
 		return;
 	}
 
-	// Si la taille du vecteur est inférieure à un seuil, on utilise l'algorithme d'insertion sort
+	// Si la taille du vecteur est inférieure à un seuil, on utilise l'algorithme d'insertion
 	if (r - l + 1 <= 10) {
 		for (int i = l + 1; i <= r; i++) {
 			int key = arr[i];

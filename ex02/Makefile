@@ -14,9 +14,9 @@ OBJS	= $(SRC:.cpp=.o)
 all:		$(NAME)
 
 $(NAME): $(OBJS) $(INCLUDES)
-			@$(CC) $(FLAG) -o $(NAME) $(OBJS)
+			@$(CC) $(FLAG) $(CPPFLAGS) -o $(NAME) $(OBJS)
 %.o: %.cpp $(INCLUDES)
-	@$(CC) $(FLAG) -c $< -o $@
+	@$(CC) $(FLAG) $(CPPFLAGS) -c $< -o $@
 	@printf "\033[32m[ ✔ ]\033[0m %s\n" "$<"
 
 clean:
