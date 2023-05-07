@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <vector>
-#include <list>
+#include <deque>
 #include <algorithm>
 #include <ctime>
 #include <string>
@@ -16,8 +16,8 @@
 
 void merge_insertion_sort(std::vector<int>& arr, int l, int r);
 
-void merge_insertion_sort_list(std::list<int>& lst);
+void merge_insertion_sort_deque(std::deque<int>& arr, int left, int right);
 
-void fillVectorFromArgs(int ac, char **av, std::vector<int>& vec, std::list<int>& lst);
+void fillVectorFromArgs(int ac, char **av, std::vector<int>& vec, std::deque<int>& deq);
 
 #endif //CPP09_PMERGEME_HPP
